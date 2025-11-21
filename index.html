@@ -719,6 +719,118 @@
             text-decoration: underline;
         }
         
+        /* New styles for client details and editable payments */
+        .client-details {
+            margin-top: 30px;
+        }
+        
+        .client-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .client-info-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .client-info-card h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .client-info-card p {
+            color: var(--dark);
+            font-size: 1rem;
+        }
+        
+        .editable-paid {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .paid-input {
+            width: 120px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .save-paid-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .save-paid-btn:hover {
+            background: #219955;
+        }
+        
+        .price-history-container {
+            margin-top: 30px;
+        }
+        
+        .price-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .price-history-table th,
+        .price-history-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .price-history-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .price-history-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .price-history-table .amount {
+            font-weight: 600;
+            color: var(--success);
+        }
+        
+        .price-history-table .date {
+            color: var(--gray);
+        }
+        
+        .storage-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .storage-status.show {
+            opacity: 1;
+        }
+        
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -785,6 +897,22 @@
             .footer-links a {
                 margin: 0 10px;
             }
+            
+            .client-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .editable-paid {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .storage-status {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -801,6 +929,7 @@
                         <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
                         <li><a href="#" class="nav-link" data-page="construction">Construction</a></li>
                         <li><a href="#" class="nav-link" data-page="expenses">Other Expenses</a></li>
+                        <li><a href="#" class="nav-link" data-page="price-history">Price History</a></li>
                     </ul>
                 </nav>
             </div>
@@ -813,7 +942,10 @@
             <div class="card">
                 <div class="card-header">
                     <h2>Project Overview</h2>
-                    <a href="#" class="btn btn-success"><i class="fas fa-download"></i> Download Quotation</a>
+                    <div>
+                        <button class="btn btn-warning" id="reset-data-btn"><i class="fas fa-undo"></i> Reset Data</button>
+                        <a href="#" class="btn btn-success"><i class="fas fa-download"></i> Download Quotation</a>
+                    </div>
                 </div>
                 
                 <div class="project-overview">
@@ -836,6 +968,32 @@
                         <i class="fas fa-rupee-sign"></i>
                         <h3>Total Cost</h3>
                         <div class="value">₹10,31,250</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card client-details">
+                <div class="card-header">
+                    <h2>Client Details</h2>
+                    <button class="btn" id="edit-client-btn"><i class="fas fa-edit"></i> Edit Client</button>
+                </div>
+                
+                <div class="client-info-grid">
+                    <div class="client-info-card">
+                        <h3>Client Name</h3>
+                        <p id="client-name">Vishnu Balu</p>
+                    </div>
+                    <div class="client-info-card">
+                        <h3>Phone Number</h3>
+                        <p id="client-phone">+91 9876543210</p>
+                    </div>
+                    <div class="client-info-card">
+                        <h3>Email Address</h3>
+                        <p id="client-email">vishnu@example.com</p>
+                    </div>
+                    <div class="client-info-card">
+                        <h3>Property Address</h3>
+                        <p id="client-address">123 Main Street, Chennai, Tamil Nadu 600001</p>
                     </div>
                 </div>
             </div>
@@ -1114,6 +1272,35 @@
                 </div>
             </div>
         </section>
+        
+        <!-- Price History Page -->
+        <section id="price-history" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Price History</h2>
+                    <button class="btn" id="add-price-btn"><i class="fas fa-plus"></i> Add Price Update</button>
+                </div>
+                
+                <div class="price-history-container">
+                    <table class="price-history-table" id="price-history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Previous Amount</th>
+                                <th>New Amount</th>
+                                <th>Difference</th>
+                                <th>Reason</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Price history records will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Payment Modal -->
@@ -1153,6 +1340,88 @@
         </div>
     </div>
 
+    <!-- Client Edit Modal -->
+    <div class="modal" id="client-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="client-modal-title">Edit Client Details</h3>
+                <button class="close-modal" id="close-client-modal">&times;</button>
+            </div>
+            <form id="client-form">
+                <div class="form-group">
+                    <label for="client-name-input">Client Name</label>
+                    <input type="text" id="client-name-input" class="form-control" placeholder="Enter client name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-phone-input">Phone Number</label>
+                    <input type="tel" id="client-phone-input" class="form-control" placeholder="Enter phone number" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-email-input">Email Address</label>
+                    <input type="email" id="client-email-input" class="form-control" placeholder="Enter email address" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-address-input">Property Address</label>
+                    <textarea id="client-address-input" class="form-control" rows="3" placeholder="Enter property address" required></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Details</button>
+                    <button type="button" class="btn btn-danger" id="cancel-client">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Price Update Modal -->
+    <div class="modal" id="price-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="price-modal-title">Add Price Update</h3>
+                <button class="close-modal" id="close-price-modal">&times;</button>
+            </div>
+            <form id="price-form">
+                <div class="form-group">
+                    <label for="price-date">Date</label>
+                    <input type="date" id="price-date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="price-description">Description</label>
+                    <input type="text" id="price-description" class="form-control" placeholder="Enter description" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="previous-amount">Previous Amount (₹)</label>
+                        <input type="number" id="previous-amount" class="form-control" placeholder="Enter previous amount" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-amount">New Amount (₹)</label>
+                        <input type="number" id="new-amount" class="form-control" placeholder="Enter new amount" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="price-reason">Reason for Change</label>
+                    <textarea id="price-reason" class="form-control" rows="3" placeholder="Enter reason for price change" required></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Update</button>
+                    <button type="button" class="btn btn-danger" id="cancel-price">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Storage Status Indicator -->
+    <div class="storage-status" id="storage-status">Data Saved Successfully!</div>
+
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -1170,6 +1439,17 @@
     </footer>
 
     <script>
+        // Local Storage Keys
+        const STORAGE_KEYS = {
+            CONSTRUCTION_DATA: 'pgk_construction_data',
+            EXPENSES_DATA: 'pgk_expenses_data',
+            EXPENSE_PAYMENTS: 'pgk_expense_payments',
+            CLIENT_DATA: 'pgk_client_data',
+            PRICE_HISTORY: 'pgk_price_history',
+            PAYMENT_ID_COUNTER: 'pgk_payment_id_counter',
+            PRICE_ID_COUNTER: 'pgk_price_id_counter'
+        };
+
         // Navigation between pages
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
@@ -1194,8 +1474,8 @@
             });
         });
 
-        // Construction data model
-        const constructionData = {
+        // Default data models
+        const defaultConstructionData = {
             projectName: "PGK Construction",
             engineer: "Er. P. Govindaraj",
             perSqftRate: 1650,
@@ -1256,8 +1536,7 @@
             ]
         };
 
-        // Expenses data model
-        let expensesData = [
+        const defaultExpensesData = [
             { 
                 id: 1, 
                 name: "Borewell", 
@@ -1290,7 +1569,7 @@
             }
         ];
 
-        let expensePayments = [
+        const defaultExpensePayments = [
             { 
                 id: 1, 
                 type: "expense", 
@@ -1311,19 +1590,116 @@
             }
         ];
 
+        const defaultClientData = {
+            name: "Vishnu Balu",
+            phone: "+91 9876543210",
+            email: "vishnu@example.com",
+            address: "123 Main Street, Chennai, Tamil Nadu 600001"
+        };
+
+        const defaultPriceHistory = [
+            {
+                id: 1,
+                date: "2023-09-01",
+                description: "Initial Quotation",
+                previousAmount: 0,
+                newAmount: 1031250,
+                difference: 1031250,
+                reason: "Initial project quotation"
+            },
+            {
+                id: 2,
+                date: "2023-10-01",
+                description: "Material Cost Adjustment",
+                previousAmount: 1031250,
+                newAmount: 1051250,
+                difference: 20000,
+                reason: "Increase in steel prices"
+            }
+        ];
+
+        // Load data from local storage or use defaults
+        let constructionData = loadFromStorage(STORAGE_KEYS.CONSTRUCTION_DATA, defaultConstructionData);
+        let expensesData = loadFromStorage(STORAGE_KEYS.EXPENSES_DATA, defaultExpensesData);
+        let expensePayments = loadFromStorage(STORAGE_KEYS.EXPENSE_PAYMENTS, defaultExpensePayments);
+        let clientData = loadFromStorage(STORAGE_KEYS.CLIENT_DATA, defaultClientData);
+        let priceHistory = loadFromStorage(STORAGE_KEYS.PRICE_HISTORY, defaultPriceHistory);
+        let paymentIdCounter = loadFromStorage(STORAGE_KEYS.PAYMENT_ID_COUNTER, 3);
+        let priceIdCounter = loadFromStorage(STORAGE_KEYS.PRICE_ID_COUNTER, 3);
+
         let editingStageId = null;
         let editingExpenseId = null;
-        let paymentIdCounter = 3;
+
+        // Local Storage Functions
+        function loadFromStorage(key, defaultValue) {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            } catch (error) {
+                console.error(`Error loading ${key} from storage:`, error);
+                return defaultValue;
+            }
+        }
+
+        function saveToStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+                showStorageStatus();
+            } catch (error) {
+                console.error(`Error saving ${key} to storage:`, error);
+            }
+        }
+
+        function showStorageStatus() {
+            const statusElement = document.getElementById('storage-status');
+            statusElement.classList.add('show');
+            setTimeout(() => {
+                statusElement.classList.remove('show');
+            }, 2000);
+        }
+
+        function saveAllData() {
+            saveToStorage(STORAGE_KEYS.CONSTRUCTION_DATA, constructionData);
+            saveToStorage(STORAGE_KEYS.EXPENSES_DATA, expensesData);
+            saveToStorage(STORAGE_KEYS.EXPENSE_PAYMENTS, expensePayments);
+            saveToStorage(STORAGE_KEYS.CLIENT_DATA, clientData);
+            saveToStorage(STORAGE_KEYS.PRICE_HISTORY, priceHistory);
+            saveToStorage(STORAGE_KEYS.PAYMENT_ID_COUNTER, paymentIdCounter);
+            saveToStorage(STORAGE_KEYS.PRICE_ID_COUNTER, priceIdCounter);
+        }
+
+        function resetAllData() {
+            if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
+                constructionData = JSON.parse(JSON.stringify(defaultConstructionData));
+                expensesData = JSON.parse(JSON.stringify(defaultExpensesData));
+                expensePayments = JSON.parse(JSON.stringify(defaultExpensePayments));
+                clientData = JSON.parse(JSON.stringify(defaultClientData));
+                priceHistory = JSON.parse(JSON.stringify(defaultPriceHistory));
+                paymentIdCounter = 3;
+                priceIdCounter = 3;
+                
+                saveAllData();
+                updateConstructionDisplay();
+                updateExpensesDisplay();
+                updateClientDisplay();
+                updatePriceHistoryDisplay();
+                
+                alert('All data has been reset to default values.');
+            }
+        }
 
         // Initialize the page with data
         document.addEventListener('DOMContentLoaded', function() {
             updateConstructionDisplay();
             updateExpensesDisplay();
+            updateClientDisplay();
+            updatePriceHistoryDisplay();
             
             // Set today's date as default for forms
             document.getElementById('stage-date').valueAsDate = new Date();
             document.getElementById('expense-date').valueAsDate = new Date();
             document.getElementById('payment-date').valueAsDate = new Date();
+            document.getElementById('price-date').valueAsDate = new Date();
             
             // Construction page event listeners
             document.getElementById('stage-form').addEventListener('submit', function(e) {
@@ -1341,29 +1717,6 @@
             
             document.getElementById('stage-cancel-btn').addEventListener('click', function() {
                 cancelStageEdit();
-            });
-            
-            document.querySelectorAll('.add-payment-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const stageId = this.getAttribute('data-stage');
-                    const totalAmount = parseInt(this.getAttribute('data-total'));
-                    const alreadyPaid = parseInt(this.getAttribute('data-paid'));
-                    openPaymentModal('construction', stageId, totalAmount, alreadyPaid);
-                });
-            });
-            
-            document.querySelectorAll('.edit-stage').forEach(button => {
-                button.addEventListener('click', function() {
-                    const stageId = this.getAttribute('data-stage');
-                    editStage(stageId);
-                });
-            });
-            
-            document.querySelectorAll('.delete-stage').forEach(button => {
-                button.addEventListener('click', function() {
-                    const stageId = this.getAttribute('data-stage');
-                    deleteStage(stageId);
-                });
             });
             
             document.getElementById('add-stage-btn').addEventListener('click', function() {
@@ -1388,29 +1741,6 @@
                 cancelExpenseEdit();
             });
             
-            document.querySelectorAll('.edit-expense').forEach(button => {
-                button.addEventListener('click', function() {
-                    const expenseId = parseInt(this.getAttribute('data-id'));
-                    editExpense(expenseId);
-                });
-            });
-            
-            document.querySelectorAll('.delete-expense').forEach(button => {
-                button.addEventListener('click', function() {
-                    const expenseId = parseInt(this.getAttribute('data-id'));
-                    deleteExpense(expenseId);
-                });
-            });
-            
-            document.querySelectorAll('.add-expense-payment-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const expenseId = parseInt(this.getAttribute('data-id'));
-                    const totalAmount = parseInt(this.getAttribute('data-total'));
-                    const alreadyPaid = parseInt(this.getAttribute('data-paid'));
-                    openPaymentModal('expense', expenseId, totalAmount, alreadyPaid);
-                });
-            });
-            
             document.getElementById('add-expense-btn').addEventListener('click', function() {
                 document.getElementById('expense-form').scrollIntoView({ behavior: 'smooth' });
             });
@@ -1432,6 +1762,47 @@
             // Update payment amount info when amount changes
             document.getElementById('payment-amount').addEventListener('input', function() {
                 updatePaymentInfo();
+            });
+            
+            // Client modal event listeners
+            document.getElementById('edit-client-btn').addEventListener('click', function() {
+                openClientModal();
+            });
+            
+            document.getElementById('close-client-modal').addEventListener('click', function() {
+                closeClientModal();
+            });
+            
+            document.getElementById('cancel-client').addEventListener('click', function() {
+                closeClientModal();
+            });
+            
+            document.getElementById('client-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveClientDetails();
+            });
+            
+            // Price modal event listeners
+            document.getElementById('add-price-btn').addEventListener('click', function() {
+                openPriceModal();
+            });
+            
+            document.getElementById('close-price-modal').addEventListener('click', function() {
+                closePriceModal();
+            });
+            
+            document.getElementById('cancel-price').addEventListener('click', function() {
+                closePriceModal();
+            });
+            
+            document.getElementById('price-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                savePriceUpdate();
+            });
+            
+            // Reset data button
+            document.getElementById('reset-data-btn').addEventListener('click', function() {
+                resetAllData();
             });
         });
 
@@ -1472,6 +1843,9 @@
             
             // Update payment history table
             updateConstructionPaymentTable();
+            
+            // Save to storage
+            saveToStorage(STORAGE_KEYS.CONSTRUCTION_DATA, constructionData);
         }
 
         // Update stage list in the UI
@@ -1514,7 +1888,10 @@
                         ${stage.notes ? `<p><small>${stage.notes}</small></p>` : ''}
                     </div>
                     <div class="stage-payment-info">
-                        <div class="stage-paid">Paid: ₹${stage.paid.toLocaleString('en-IN')}</div>
+                        <div class="editable-paid">
+                            <input type="number" class="paid-input" value="${stage.paid}" data-stage="${stage.id}" min="0" max="${stage.amount}">
+                            <button class="save-paid-btn" data-stage="${stage.id}"><i class="fas fa-save"></i> Save</button>
+                        </div>
                         <div class="stage-balance">Balance: ₹${balance.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="stage-actions">
@@ -1550,6 +1927,51 @@
                     deleteStage(stageId);
                 });
             });
+            
+            // Add event listeners for editable paid amounts
+            document.querySelectorAll('.save-paid-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const stageId = this.getAttribute('data-stage');
+                    const input = document.querySelector(`.paid-input[data-stage="${stageId}"]`);
+                    const newPaidAmount = parseInt(input.value);
+                    updateStagePaidAmount(stageId, newPaidAmount);
+                });
+            });
+        }
+
+        // Update stage paid amount directly
+        function updateStagePaidAmount(stageId, newPaidAmount) {
+            const stageIndex = constructionData.stages.findIndex(stage => stage.id === stageId);
+            if (stageIndex === -1) return;
+            
+            const stage = constructionData.stages[stageIndex];
+            
+            // Validate the amount
+            if (newPaidAmount < 0 || newPaidAmount > stage.amount) {
+                alert(`Paid amount must be between 0 and ${stage.amount}`);
+                return;
+            }
+            
+            // Update the paid amount
+            constructionData.stages[stageIndex].paid = newPaidAmount;
+            
+            // Update stage status
+            if (newPaidAmount === stage.amount) {
+                constructionData.stages[stageIndex].status = "completed";
+            } else if (newPaidAmount > 0) {
+                constructionData.stages[stageIndex].status = "in-progress";
+            } else {
+                constructionData.stages[stageIndex].status = "pending";
+            }
+            
+            // Update the last updated date
+            constructionData.lastUpdated = new Date().toISOString().split('T')[0];
+            
+            // Update display
+            updateConstructionDisplay();
+            
+            // Show success message
+            alert(`Paid amount for ${stage.name} updated to ₹${newPaidAmount.toLocaleString('en-IN')}`);
         }
 
         // Add a new stage
@@ -1747,6 +2169,9 @@
             
             // Update expense payment table
             updateExpensePaymentTable();
+            
+            // Save to storage
+            saveToStorage(STORAGE_KEYS.EXPENSES_DATA, expensesData);
         }
 
         // Update expenses list in the UI
@@ -1799,7 +2224,10 @@
                     </div>
                     <div class="expense-amount">₹${expense.amount.toLocaleString('en-IN')}</div>
                     <div class="expense-payment-info">
-                        <div class="expense-paid">Paid: ₹${expense.paid.toLocaleString('en-IN')}</div>
+                        <div class="editable-paid">
+                            <input type="number" class="paid-input" value="${expense.paid}" data-expense="${expense.id}" min="0" max="${expense.amount}">
+                            <button class="save-paid-btn" data-expense="${expense.id}"><i class="fas fa-save"></i> Save</button>
+                        </div>
                         <div class="expense-balance">Balance: ₹${balance.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="expense-actions">
@@ -1835,6 +2263,48 @@
                     openPaymentModal('expense', expenseId, totalAmount, alreadyPaid);
                 });
             });
+            
+            // Add event listeners for editable paid amounts
+            document.querySelectorAll('.save-paid-btn[data-expense]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const expenseId = parseInt(this.getAttribute('data-expense'));
+                    const input = document.querySelector(`.paid-input[data-expense="${expenseId}"]`);
+                    const newPaidAmount = parseInt(input.value);
+                    updateExpensePaidAmount(expenseId, newPaidAmount);
+                });
+            });
+        }
+
+        // Update expense paid amount directly
+        function updateExpensePaidAmount(expenseId, newPaidAmount) {
+            const expenseIndex = expensesData.findIndex(expense => expense.id === expenseId);
+            if (expenseIndex === -1) return;
+            
+            const expense = expensesData[expenseIndex];
+            
+            // Validate the amount
+            if (newPaidAmount < 0 || newPaidAmount > expense.amount) {
+                alert(`Paid amount must be between 0 and ${expense.amount}`);
+                return;
+            }
+            
+            // Update the paid amount
+            expensesData[expenseIndex].paid = newPaidAmount;
+            
+            // Update expense status
+            if (newPaidAmount === expense.amount) {
+                expensesData[expenseIndex].status = "paid";
+            } else if (newPaidAmount > 0) {
+                expensesData[expenseIndex].status = "pending";
+            } else {
+                expensesData[expenseIndex].status = "pending";
+            }
+            
+            // Update display
+            updateExpensesDisplay();
+            
+            // Show success message
+            alert(`Paid amount for ${expense.name} updated to ₹${newPaidAmount.toLocaleString('en-IN')}`);
         }
 
         // Update expense payment table
@@ -1882,6 +2352,9 @@
                     deleteExpensePayment(paymentId);
                 });
             });
+            
+            // Save to storage
+            saveToStorage(STORAGE_KEYS.EXPENSE_PAYMENTS, expensePayments);
         }
 
         // Format category for display
@@ -2018,6 +2491,157 @@
             resetExpenseForm();
         }
 
+        // Update client display
+        function updateClientDisplay() {
+            document.getElementById('client-name').textContent = clientData.name;
+            document.getElementById('client-phone').textContent = clientData.phone;
+            document.getElementById('client-email').textContent = clientData.email;
+            document.getElementById('client-address').textContent = clientData.address;
+            
+            // Save to storage
+            saveToStorage(STORAGE_KEYS.CLIENT_DATA, clientData);
+        }
+
+        // Open client modal
+        function openClientModal() {
+            document.getElementById('client-name-input').value = clientData.name;
+            document.getElementById('client-phone-input').value = clientData.phone;
+            document.getElementById('client-email-input').value = clientData.email;
+            document.getElementById('client-address-input').value = clientData.address;
+            
+            document.getElementById('client-modal').classList.add('active');
+        }
+
+        // Close client modal
+        function closeClientModal() {
+            document.getElementById('client-modal').classList.remove('active');
+        }
+
+        // Save client details
+        function saveClientDetails() {
+            clientData.name = document.getElementById('client-name-input').value;
+            clientData.phone = document.getElementById('client-phone-input').value;
+            clientData.email = document.getElementById('client-email-input').value;
+            clientData.address = document.getElementById('client-address-input').value;
+            
+            updateClientDisplay();
+            closeClientModal();
+            
+            alert('Client details updated successfully!');
+        }
+
+        // Update price history display
+        function updatePriceHistoryDisplay() {
+            const tableBody = document.querySelector('#price-history-table tbody');
+            tableBody.innerHTML = '';
+            
+            if (priceHistory.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 20px; color: var(--gray);">
+                            <i class="fas fa-chart-line" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            No price history records found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Sort price history by date (newest first)
+            const sortedPriceHistory = [...priceHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedPriceHistory.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="date">${record.date}</td>
+                    <td>${record.description}</td>
+                    <td>₹${record.previousAmount.toLocaleString('en-IN')}</td>
+                    <td>₹${record.newAmount.toLocaleString('en-IN')}</td>
+                    <td class="${record.difference >= 0 ? 'amount' : ''}" style="${record.difference < 0 ? 'color: var(--danger); font-weight: 600;' : ''}">
+                        ${record.difference >= 0 ? '+' : ''}₹${record.difference.toLocaleString('en-IN')}
+                    </td>
+                    <td>${record.reason}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm delete-price-btn" data-id="${record.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Re-attach event listeners
+            document.querySelectorAll('.delete-price-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const priceId = parseInt(this.getAttribute('data-id'));
+                    deletePriceRecord(priceId);
+                });
+            });
+            
+            // Save to storage
+            saveToStorage(STORAGE_KEYS.PRICE_HISTORY, priceHistory);
+        }
+
+        // Open price modal
+        function openPriceModal() {
+            document.getElementById('price-form').reset();
+            document.getElementById('price-date').valueAsDate = new Date();
+            
+            document.getElementById('price-modal').classList.add('active');
+        }
+
+        // Close price modal
+        function closePriceModal() {
+            document.getElementById('price-modal').classList.remove('active');
+        }
+
+        // Save price update
+        function savePriceUpdate() {
+            const date = document.getElementById('price-date').value;
+            const description = document.getElementById('price-description').value;
+            const previousAmount = parseInt(document.getElementById('previous-amount').value);
+            const newAmount = parseInt(document.getElementById('new-amount').value);
+            const reason = document.getElementById('price-reason').value;
+            
+            const difference = newAmount - previousAmount;
+            
+            // Create new price record
+            const newRecord = {
+                id: priceIdCounter++,
+                date,
+                description,
+                previousAmount,
+                newAmount,
+                difference,
+                reason
+            };
+            
+            // Add to data array
+            priceHistory.push(newRecord);
+            
+            // Update display
+            updatePriceHistoryDisplay();
+            
+            // Save counter to storage
+            saveToStorage(STORAGE_KEYS.PRICE_ID_COUNTER, priceIdCounter);
+            
+            // Close modal
+            closePriceModal();
+            
+            // Show success message
+            alert('Price update added successfully!');
+        }
+
+        // Delete price record
+        function deletePriceRecord(priceId) {
+            if (!confirm('Are you sure you want to delete this price record?')) return;
+            
+            const priceIndex = priceHistory.findIndex(record => record.id === priceId);
+            if (priceIndex === -1) return;
+            
+            priceHistory.splice(priceIndex, 1);
+            updatePriceHistoryDisplay();
+            alert('Price record deleted successfully!');
+        }
+
         // Open payment modal
         function openPaymentModal(type, itemId, totalAmount, alreadyPaid) {
             document.getElementById('payment-type').value = type;
@@ -2128,6 +2752,9 @@
                 // Update display
                 updateConstructionDisplay();
                 
+                // Save counter to storage
+                saveToStorage(STORAGE_KEYS.PAYMENT_ID_COUNTER, paymentIdCounter);
+                
             } else {
                 // Expense payment
                 const expenseId = parseInt(itemId);
@@ -2161,6 +2788,9 @@
                 
                 // Update display
                 updateExpensesDisplay();
+                
+                // Save counter to storage
+                saveToStorage(STORAGE_KEYS.PAYMENT_ID_COUNTER, paymentIdCounter);
             }
             
             // Close modal and show success message
